@@ -1,9 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
 
+    const loadingSpinner = document.getElementById('loading-spinner');
     const overlay = document.getElementById('overlay');
     const mainContainer = document.getElementById('main-container');
     const confirmDeleteWrapper = document.getElementById('confirm-delete-wrapper');
+    const emptyInvoicesWrapper = document.querySelector('.empty-invoices-wrapper');
+    const invoicesList = document.querySelector('.invoices-list');
+    
     let currentInvoiceId;
+    let invoiceFilter = ['draft', 'pending', 'paid'];
     
     function convertDate(dateString) {
         // Parse the input date string
@@ -43,9 +48,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 10)
     }
 
-    function getInvoiceDataById(loadedData, id) {
-        return loadedData.find(item => item.id === id);
+    function getInvoiceDataById(data, id) {
+        return data.find(item => item.id === id);
     }
+
 
     window.convertDate = convertDate;
     window.closeElemTransition = closeElemTransition;
@@ -55,4 +61,9 @@ document.addEventListener('DOMContentLoaded', function() {
     window.mainContainer = mainContainer;
     window.confirmDeleteWrapper = confirmDeleteWrapper;
     window.currentInvoiceId = currentInvoiceId;
+    window.emptyInvoicesWrapper = emptyInvoicesWrapper;
+    window.invoicesList = invoicesList;
+    window.invoiceFilter = invoiceFilter;
+
+    window.loadingSpinner = loadingSpinner;
 })

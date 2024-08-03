@@ -28,7 +28,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const invoiceToCountryText = document.getElementById('view-invoice-to-country');
     const invoiceTotalText = document.getElementById('view-invoice-total');
 
+    const invoiceStatusWrapperPaid = document.getElementById('view-invoice-status-wrapper-paid');
+    const invoiceStatusWrapperPending = document.getElementById('view-invoice-status-wrapper-pending');
+    const invoiceStatusWrapperDraft= document.getElementById('view-invoice-status-wrapper-draft');
+
     let invoiceData;
+    let updated = false;
+
+    const invoiceStatusToElem = {
+        'paid': invoiceStatusWrapperPaid,
+        'pending': invoiceStatusWrapperPending,
+        'draft': invoiceStatusWrapperDraft
+    }
 
     function addItem(name='', quantity='', price='', total='') {
 
@@ -80,16 +91,29 @@ document.addEventListener('DOMContentLoaded', function() {
             let item = invoiceData.items[i];
             addItem(item.name, item.quantity, item.price, item.total)
         }
+
+        // Update status
+        invoiceStatusWrapperPaid.classList.add('hidden')
+        invoiceStatusWrapperPending.classList.add('hidden')
+        invoiceStatusWrapperDraft.classList.add('hidden')
+        invoiceStatusToElem[invoiceData.status].classList.remove('hidden')
+
     }
 
     function closeViewInvoice() {
         closeElemTransition(viewInvoicesWrapper)
         openElemTransition(invoicesWrapper)
+
+        if (updated) {
+            loadDataFromStorage()
+        }
     }
 
-    function openViewInvoice(data) {
-        invoiceData = data;
-        updateViewInvoiceDetails(data)
+    function openViewInvoice() {
+        updated = false;
+        // TODO load invoices from storage
+        let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+        updateViewInvoiceDetails(invoices)
         closeElemTransition(invoicesWrapper)
         openElemTransition(viewInvoicesWrapper)
     }
@@ -114,6 +138,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function paidBtnClick() {
         console.log('Paid Btn Click')
+        console.log(invoiceData.id)
+
+        // Retrieve the cart from local storage
+        let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+        console.log('invoices:', invoices)
+        // Find the index of the item to be updated
+        let index = invoices.findIndex(item => item.id === invoiceData.id);
+        console.log('index:', index)
+        // If the item exists, update its properties
+        console.log(invoices[index])
+        if (index !== -1) {
+            invoices[index].status = 'paid';
+            localStorage.setItem('invoices', JSON.stringify(invoices));
+            invoiceData = invoices;
+
+            invoiceStatusWrapperPaid.classList.remove('hidden')
+            invoiceStatusWrapperPending.classList.add('hidden')
+            invoiceStatusWrapperDraft.classList.add('hidden')
+
+            updated = true;
+
+        } else {
+            console.error('Item not found in invoices');
+        }
+    
     }
 
     function init() {
@@ -126,4 +175,5 @@ document.addEventListener('DOMContentLoaded', function() {
     init()
 
     window.openViewInvoice = openViewInvoice;
+    window.closeViewInvoice = closeViewInvoice;
 })
